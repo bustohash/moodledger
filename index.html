@@ -3,36 +3,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- Updated viewport for better iOS display and PWA behavior -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Mood Ledger</title>
-    <base href="/">
-    <link rel="icon" type="image/png" href="images/favicon.png">
 
+    <base href="/">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3A302A">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mood Ledger">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 
 
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="manifest.json">
-    <!-- Theme color for browser UI - matches body background -->
-    <meta name="theme-color" content="#3A302A">
-
-    <!-- iOS Specific PWA Meta Tags -->
-    <!-- Allows the web app to be run in full-screen mode -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Sets the style of the status bar (e.g., default, black, black-translucent) -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Sets the title of the app when added to the Home Screen -->
-    <meta name="apple-mobile-web-app-title" content="Mood Ledger">
-    <!-- Link to the icon for the Home Screen (e.g., a 180x180px PNG) -->
-    <!-- You should create this image and place it in the specified path -->
-    <link rel="apple-touch-icon" href="images/apple-touch-icon-180x180.png">
-    <!-- You can add more apple-touch-icon links for different sizes if needed -->
-    <!-- Example: <link rel="apple-touch-icon" sizes="152x152" href="images/apple-touch-icon-152x152.png"> -->
-    <!-- Example: <link rel="apple-touch-icon" sizes="167x167" href="images/apple-touch-icon-167x167.png"> -->
-    <!-- Example: <link rel="apple-touch-icon" sizes="192x192" href="images/apple-touch-icon-192x192.png"> -->
-
-    <!-- End PWA Meta Tags -->
+    <link rel="stylesheet" href="styles.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap"
@@ -631,7 +618,7 @@
             },
             {
                 name: "Somewhat Low",
-                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256"><path d="M217 34.8a15.94 15.94 0 0 0-14.82-1.71c-14.03 5.46-42.36 14.62-74.18 14.62s-60.16-9.16-74.21-14.62A16 16 0 0 0 32 48v55.77c0 35.84 9.65 69.65 27.18 95.18c18.16 26.46 42.6 41 68.82 41s50.66-14.57 68.82-41c17.53-25.51 27.18-59.32 27.18-95.16V48a16 16 0 0 0-7-13.2M66 125.33a8 8 0 0 1 12-10.67c2.68 3 8.85 5.34 14 5.34s11.36-2.35 14-5.34a8 8 0 0 1 12 10.67c-5.75 6.38-16.18 10.67-26 10.67s-20.25-4.29-26-10.67m92.62 63.1A8 8 0 0 1 152 192a7.9 7.9 0 0 1-4.42-1.34C141.07 186.34 136 184 128 184s-13.07 2.34-19.57 6.66a8 8 0 0 1-8.86-13.32C108 171.73 116.06 168 128 168s20 3.73 28.43 9.34a8 8 0 0 1 2.23 11.09Zm31.3-63.1c-5.71 6.38-16.14 10.67-26 10.67s-20.25-4.29-26-10.67A8 8 0 0 1 150 114.66c2.68 3 8.85 5.34 14 5.34s11.36-2.35 14-5.34a8 8 0 0 1 12 10.67Z"/></svg>`,
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256"><path d="M217 34.8a15.94 15.94 0 0 0-14.82-1.71c-14.03 5.46-42.36 14.62-74.18 14.62s-60.16-9.16-74.21-14.62A16 16 0 0 0 32 48v55.77c0 35.84 9.65 69.65 27.18 95.18c18.16 26.46 42.6 41 68.82 41s50.66-14.57 68.82-41c17.53-25.51 27.18-59.32 27.18-95.16V48a16 16 0 0 0-7-13.2M66 125.33a8 8 0 0 1 12-10.67c2.68 3 8.85 5.34 14 5.34s11.36-2.35 14-5.34a8 8 0 0 1 12 10.67c-5.75 6.38-16.18 10.67-26 10.67s-20.25-4.29-26-10.67m92.62 63.1A8 8 0 0 1 152 192a7.9 7.9 0 0 1-4.42-1.34C141.07 186.34 136 184 128 184s-13.07 2.34-19.57 6.66a8 8 0 0 1-8.86-13.32C108 171.73 116.06 168 128 168s20 3.73 28.43 9.34a8 8 0 0 1 2.23 11.09ZM189.34 134a8 8 0 0 1-11.3-.63c-2.68-3-8.85-5.33-14-5.33s-11.36 2.34-14 5.33A8 8 0 1 1 138 122.66c5.71-6.38 16.14-10.66 26-10.66s20.25 4.28 26 10.66a8 8 0 0 1-.66 11.34"/></svg>`,
                 value: 2,
                 subsets: ["Melancholy", "Crestfallen", "Troubled", "Harried", "Weary", "Listless", "Peevish", "Vexed", "Lethargic"]
             },
