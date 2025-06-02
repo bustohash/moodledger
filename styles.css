@@ -1,46 +1,639 @@
-/* Styles for smaller screens, often including iPhones */
-@media screen and (max-width: 600px) {
-  /* Apply smaller font sizes, adjust padding, etc. */
-  body {
-    font-size: 16px;
-  }
-  .container {
-    padding: 10px;
-  }
-  /* ... other adjustments ... */
-}
-
-/* More specific targeting based on aspect ratio or height (example for taller, narrower screens like iPhones) */
-@media screen and (max-aspect-ratio: 1/2) and (max-height: 800px) {
-  /* Further adjustments for taller, narrower screens */
-  .element {
-    /* Adjust margins, layouts, etc. */
-  }
-}
-
-/* Targeting devices with a high pixel density (Retina displays common on iPhones) */
-@media (-webkit-min-device-pixel-ratio: 2) {
-  /* Provide higher resolution images if needed */
-  .logo {
-    /* background-image: url('logo@2x.png'); */
-    background-size: contain;
-  }
-}
-
-/* Targeting devices with safe areas (for notch and rounded corners) */
+/* Base styles for the body */
 body {
-  padding-top: constant(safe-area-inset-top); /* iOS < 11.0 */
-  padding-right: constant(safe-area-inset-right); /* iOS < 11.0 */
-  padding-bottom: constant(safe-area-inset-bottom); /* iOS < 11.0 */
-  padding-left: constant(safe-area-inset-left); /* iOS < 11.0 */
+    font-family: 'Merriweather', serif;
+    background-color: #3A302A; /* Very dark, slightly warm brown - old wood/background */
+    color: #EAE0D5; /* Off-white/light parchment for text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+    box-sizing: border-box;
 
-  padding-top: env(safe-area-inset-top); /* iOS 11.0+ */
-  padding-right: env(safe-area-inset-right); /* iOS 11.0+ */
-  padding-bottom: env(safe-area-inset-bottom); /* iOS 11.0+ */
-  padding-left: env(safe-area-inset-left); /* iOS 11.0+ */
+    /* IMPORTANT: Add padding to account for iOS safe areas (notch, dynamic island) */
+    padding-top: constant(safe-area-inset-top); /* For iOS < 11.2 */
+    padding-top: env(safe-area-inset-top);     /* For iOS 11.2+ */
+    padding-left: constant(safe-area-inset-left);
+    padding-left: env(safe-area-inset-left);
+    padding-right: constant(safe-area-inset-right);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Navigation buttons container */
+.page-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Styling for individual navigation buttons */
+.nav-button {
+    font-family: 'Cinzel', serif;
+    background-color: #6B4F40; /* Medium wood */
+    color: #EAE0D5;
+    padding: 0.6rem 1.2rem;
+    border: 2px solid #8B6F5C;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect for navigation buttons */
+.nav-button:hover {
+    background-color: #8B6F5C;
+    border-color: #D4AF37;
+}
+
+/* Active state for navigation buttons */
+.nav-button.active {
+    background-color: #D4AF37;
+    color: #3A302A;
+    border-color: #B8860B;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* General page content styling */
+.page-content {
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Display classes for pages */
+.active-page {
+    display: block;
+}
+
+.inactive-page {
+    display: none;
+}
+
+/* Container for main content sections */
 .container {
-  margin-left: env(safe-area-inset-left);
-  margin-right: env(safe-area-inset-right);
+    background-color: #503F32; /* Darker, rich wood/leather */
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+    border: 3px solid #7A5C49; /* Wood highlight/frame */
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+/* Heading 1 styling */
+h1 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37; /* Old gold/brass */
+    text-align: center;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* NEW: Styles for the Add Entry Button (+) */
+#addEntryButton {
+    font-family: 'Cinzel', serif;
+    background-color: #6B4F40; /* Medium wood */
+    color: #D4AF37; /* Old gold/brass */
+    border-radius: 9999px; /* Full circle */
+    width: 6rem; /* w-24 */
+    height: 6rem; /* h-24 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem; /* text-8xl, adjusted for better fit */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-lg */
+    transition: all 0.3s ease;
+    border: 2px solid #8B6F5C; /* Border to match theme */
+    cursor: pointer;
+}
+
+#addEntryButton:hover {
+    background-color: #8B6F5C; /* hover:bg-8b6f5c */
+    transform: scale(1.05); /* hover:scale-105 */
+    border-color: #D4AF37;
+}
+
+#addEntryButton:active {
+    transform: scale(0.95); /* active:scale-95 */
+}
+
+#addEntryButton span {
+    line-height: 1; /* Ensures the + is vertically centered */
+    display: block; /* To apply line-height correctly */
+}
+
+/* NEW: Styles for the text below the Add Entry Button */
+.text-eae0d5 {
+    color: #EAE0D5; /* Off-white/light parchment */
+}
+
+.font-cinzel {
+    font-family: 'Cinzel', serif;
+}
+
+/* Mood selection buttons container (now inside modal) */
+.mood-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+}
+
+/* Styling for individual mood buttons */
+.mood-button {
+    background-color: #6B4F40;
+    border: 2px solid #8B6F5C;
+    border-radius: 6px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(20% - 0.75rem);
+    min-width: 70px;
+    box-sizing: border-box;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    color: #EAE0D5;
+}
+
+/* Hover effect for mood buttons */
+.mood-button:hover {
+    background-color: #8B6F5C;
+    border-color: #D4AF37;
+}
+
+/* Selected state for mood buttons */
+.mood-button.selected {
+    background-color: #D4AF37;
+    color: #3A302A;
+    border-color: #B8860B;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6), inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Icon color adjustment for selected mood buttons */
+.mood-button.selected svg {
+    fill: #3A302A !important;
+}
+
+/* SVG icon styling within mood buttons */
+.mood-button svg {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+    fill: #EAE0D5;
+}
+
+/* Icon transform for selected mood buttons */
+.mood-button.selected svg {
+    transform: scale(1.1);
+}
+
+/* Text styling within mood buttons */
+.mood-button span {
+    font-size: 0.75rem;
+    text-align: center;
+    font-family: 'Merriweather', serif;
+}
+
+/* Font weight for selected mood button text */
+.mood-button.selected span {
+    font-weight: 700;
+}
+
+/* Container for subset feelings */
+.subset-feelings-container {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #4A3B31;
+    border-radius: 6px;
+    border: 1px solid #6B4F40;
+}
+
+/* Heading for subset feelings */
+.subset-feelings-container h3 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+/* Layout for subset feelings tags */
+.subset-feelings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+}
+
+/* Styling for individual feeling tags */
+.feeling-tag {
+    background-color: #60493C;
+    color: #EAE0D5;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #7A5C49;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect for feeling tags */
+.feeling-tag:hover {
+    background-color: #7A5C49;
+    border-color: #D4AF37;
+}
+
+/* Selected state for feeling tags */
+.feeling-tag.selected {
+    background-color: #800020;
+    color: #EAE0D5;
+    border-color: #A04040;
+    font-weight: 700;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Styling for notes input textarea */
+.notes-input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #60493C;
+    border: 1px solid #7A5C49;
+    border-radius: 6px;
+    color: #EAE0D5;
+    margin-bottom: 1.5rem;
+    min-height: 80px;
+    resize: vertical;
+    font-family: 'Merriweather', serif;
+    box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Placeholder text color for notes input */
+.notes-input::placeholder {
+    color: #A09487;
+}
+
+/* Styling for the save button */
+.save-button {
+    background-color: #800020;
+    color: #EAE0D5;
+    padding: 0.85rem 1.5rem;
+    border: 2px solid #A04040;
+    border-radius: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    width: 100%;
+    margin-bottom: 0; /* Removed margin-bottom as it's inside a modal now */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover effect for save button */
+.save-button:hover {
+    background-color: #A04040;
+    border-color: #D4AF37;
+    color: #FFF;
+}
+
+/* Disabled state for save button */
+.save-button:disabled {
+    background-color: #6B4F40;
+    border-color: #8B6F5C;
+    color: #A09487;
+    cursor: not-allowed;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* Mood log container */
+.mood-log-container {
+    width: 100%;
+}
+
+/* Heading for mood log */
+.mood-log-container h2 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Styling for individual mood log entries */
+.mood-log-entry {
+    background-color: #4A3B31;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #D4AF37;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Paragraph styling within log entries */
+.mood-log-entry p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+}
+
+/* Main mood display in log entries */
+.mood-log-entry .log-mood {
+    font-weight: 700;
+    color: #D4AF37;
+    display: flex;
+    align-items: center;
+    font-family: 'Merriweather', serif;
+}
+
+/* SVG icon styling within log entries */
+.mood-log-entry .log-mood svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    fill: #D4AF37;
+}
+
+/* Subset feelings display in log entries */
+.mood-log-entry .log-subset {
+    color: #C8BBAE;
+    font-style: italic;
+}
+
+/* Notes display in log entries */
+.mood-log-entry .log-notes {
+    color: #B8A99A;
+    white-space: pre-wrap;
+}
+
+/* Timestamp display in log entries */
+.mood-log-entry .log-time {
+    font-size: 0.75rem;
+    color: #908070;
+    text-align: right;
+    margin-top: 0.5rem;
+}
+
+/* Message for no entries */
+.no-entries {
+    text-align: center;
+    color: #A09487;
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* User ID display (not used with local storage, but kept for structure) */
+#userIdDisplay {
+    font-size: 0.7rem;
+    color: #7A5C49;
+    text-align: center;
+    margin-top: 2rem;
+    width: 100%;
+    word-break: break-all;
+}
+
+/* Custom modal styling (for messages) */
+#customModal {
+    z-index: 40; /* Ensure it's below the mood entry modal if both are open */
+}
+
+#customModal > div {
+    background-color: #503F32;
+    border: 2px solid #7A5C49;
+    color: #EAE0D5;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Modal title styling */
+#modalTitle {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Modal close button styling */
+#modalCloseButton {
+    background-color: #800020;
+    color: #EAE0D5;
+    border: 1px solid #A04040;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+}
+
+/* Hover effect for modal close button */
+#modalCloseButton:hover {
+    background-color: #A04040;
+    border-color: #D4AF37;
+}
+
+/* NEW: Mood Entry Modal specific styles */
+#moodEntryModal {
+    z-index: 50; /* Ensure this modal is on top */
+    /* Tailwind classes handle most of its positioning and background */
+}
+
+#moodEntryModal > div {
+    background-color: #503F32; /* bg-503f32 */
+    border: 3px solid #7A5C49; /* border-3 border-7a5c49 */
+    color: #EAE0D5; /* Default text color within modal */
+    border-radius: 8px; /* rounded-lg */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); /* shadow-xl */
+    position: relative; /* relative for close button positioning */
+    padding: 1.5rem; /* p-6 */
+    max-width: 32rem; /* max-w-lg (512px) */
+    width: 100%; /* w-full */
+}
+
+#moodEntryModal h3 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37; /* text-d4af37 */
+    text-align: center;
+    font-size: 1.5rem; /* text-2xl */
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+/* NEW: Mood Entry Modal Close Button */
+#moodEntryModalCloseButton {
+    position: absolute;
+    top: 0.75rem; /* top-3 */
+    right: 0.75rem; /* right-3 */
+    color: #EAE0D5; /* text-eae0d5 */
+    font-size: 2rem; /* text-2xl */
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease; /* transition-colors duration-200 */
+    line-height: 1; /* Adjust for better vertical alignment of 'x' */
+    padding: 0.25rem; /* Small padding for easier click */
+}
+
+#moodEntryModalCloseButton:hover {
+    color: #D4AF37; /* hover:text-d4af37 */
+}
+
+
+/* Stats page specific styles */
+#statsPage h2 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37;
+    text-align: center;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Section styling within stats page */
+.stats-section {
+    background-color: #503F32;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 2px solid #7A5C49;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Heading 3 within stats sections */
+.stats-section h3 {
+    font-family: 'Cinzel', serif;
+    color: #D4AF37;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #7A5C49;
+}
+
+/* Paragraph and list item styling within stats sections */
+.stats-section p,
+.stats-section li {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: #EAE0D5;
+}
+
+/* List styling within stats sections */
+.stats-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* List item layout within stats sections */
+.stats-section li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed #6B4F40;
+}
+
+/* Remove bottom border for last list item */
+.stats-section li:last-child {
+    border-bottom: none;
+}
+
+/* Value display within stats sections */
+.stats-section .stat-value {
+    font-weight: 600;
+    color: #D4AF37;
+}
+
+/* Loading and no data messages for stats */
+.stats-loading,
+.stats-no-data {
+    text-align: center;
+    font-style: italic;
+    color: #A09487;
+    padding: 2rem;
+}
+
+/* Mood chart canvas styling */
+#moodChartCanvas {
+    background-color: #4A3B31;
+    border-radius: 6px;
+    padding: 1rem;
+    border: 1px solid #6B4F40;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .mood-selector {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .mood-button {
+        width: calc(33.33% - 0.75rem);
+        min-width: 50px;
+    }
+
+    .subset-feelings {
+        justify-content: flex-start;
+    }
+
+    .feeling-tag {
+        margin-bottom: 0.5rem;
+    }
+
+    #moodChartCanvas {
+        margin-top: 1rem;
+    }
+
+    .container,
+    .stats-section {
+        padding: 1rem 1.5rem;
+    }
+
+    h1,
+    #statsPage h2 {
+        font-size: 1.75rem;
+    }
+
+    .mood-log-container h2 {
+        font-size: 1.3rem;
+    }
+
+    .nav-button {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Adjust modal size for smaller screens */
+    #moodEntryModal > div {
+        max-width: 95%; /* Make it take up more width on small screens */
+        padding: 1rem;
+    }
+
+    #addEntryButton {
+        width: 5rem;
+        height: 5rem;
+        font-size: 4rem;
+    }
+}
+
+/* Further responsive adjustments for very small screens */
+@media (max-width: 400px) {
+    .mood-button {
+        width: calc(50% - 0.75rem);
+    }
+
+    h1,
+    #statsPage h2 {
+        font-size: 1.5rem;
+    }
 }
