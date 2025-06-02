@@ -141,34 +141,12 @@
         const getMoodByValue = (value) => moods.find(m => m.value === value);
 
 
-        // --- DOM Elements ---
-        // Updated to reflect elements now within the new modal
-        const addEntryButton = document.getElementById('addEntryButton');
-        const moodEntryModal = document.getElementById('moodEntryModal');
-        const moodEntryModalCloseButton = document.getElementById('moodEntryModalCloseButton');
-
-        const moodSelectorDiv = moodEntryModal.querySelector('.mood-selector');
-        const subsetFeelingsContainer = moodEntryModal.querySelector('.subset-feelings-container');
-        const subsetFeelingsDiv = moodEntryModal.querySelector('.subset-feelings');
-        const notesInput = moodEntryModal.querySelector('.notes-input');
-        const saveMoodButton = moodEntryModal.querySelector('.save-button');
-
-        const moodLogDiv = document.querySelector('.mood-log-container');
-        const textStatsContentDiv = document.getElementById('textStatsContent');
-        const moodChartCanvas = document.getElementById('moodChartCanvas');
-        const chartMessageP = document.getElementById('chartMessage');
-
-        const customModal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalCloseButton = document.getElementById('modalCloseButton'); // For the message modal
-
-        const navButtons = document.querySelectorAll('.nav-button');
-        const trackerPage = document.getElementById('trackerPage');
-        const logPage = document.getElementById('logPage');
-        const statsPage = document.getElementById('statsPage');
-        const pages = document.querySelectorAll('.page-content');
-
+        // --- DOM Elements (Declared inside window.onload for safety) ---
+        let addEntryButton, moodEntryModal, moodEntryModalCloseButton;
+        let moodSelectorDiv, subsetFeelingsContainer, subsetFeelingsDiv, notesInput, saveMoodButton;
+        let moodLogDiv, textStatsContentDiv, moodChartCanvas, chartMessageP;
+        let customModal, modalTitle, modalMessage, modalCloseButton;
+        let navButtons, trackerPage, logPage, statsPage, pages;
 
         // --- State Variables ---
         let selectedMainMood = null;
@@ -188,18 +166,6 @@
             modalMessage.textContent = message;
             customModal.style.display = 'flex'; // Use flex to center the modal
         }
-
-        // Event listener to close the message modal when the close button is clicked
-        modalCloseButton.addEventListener('click', () => {
-            customModal.style.display = 'none';
-        });
-
-        // Event listener to close the message modal when clicking outside of it
-        window.addEventListener('click', (event) => {
-            if (event.target === customModal) {
-                customModal.style.display = 'none';
-            }
-        });
 
         /**
          * Handles navigation between different pages of the application.
@@ -229,11 +195,6 @@
                 }
             }
         }
-
-        // Attach event listeners to navigation buttons
-        navButtons.forEach(button => {
-            button.addEventListener('click', () => showPage(button.dataset.page));
-        });
 
         /**
          * Renders the main mood selection buttons based on the 'moods' array.
@@ -348,7 +309,7 @@
          * Saves the current mood entry to local storage.
          * Displays a modal indicating success or failure.
          */
-        saveMoodButton.addEventListener('click', async () => {
+        function saveMoodEntry() { // Renamed for clarity, called by event listener
             if (!selectedMainMood) {
                 showModal("Hark!", "Pray, choose a spirit ere saving.");
                 return;
@@ -384,7 +345,7 @@
                 showModal("Alas!", `Failed to chronicle thy spirit: ${error.message}`);
                 console.error("Error saving mood entry:", error);
             }
-        });
+        }
 
         /**
          * Loads and displays the mood log from local storage.
@@ -657,30 +618,84 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Event listeners for the new mood entry modal
-        addEntryButton.addEventListener('click', () => {
-            moodEntryModal.style.display = 'flex'; // Show the modal
-            renderMoodButtons(); // Ensure mood buttons are rendered when modal opens
-            resetForm(); // Reset form state when opening for a new entry
-        });
-
-        moodEntryModalCloseButton.addEventListener('click', () => {
-            moodEntryModal.style.display = 'none'; // Hide the modal
-            resetForm(); // Reset form state when closing
-        });
-
-        // Close mood entry modal when clicking outside of it
-        moodEntryModal.addEventListener('click', (event) => {
-            if (event.target === moodEntryModal) {
-                moodEntryModal.style.display = 'none';
-                resetForm(); // Reset form state when closing
-            }
-        });
-
-
         // Initial setup calls when the window loads
         window.onload = function () {
-            // renderMoodButtons(); // No longer needed here as it's called when modal opens
+            // --- DOM Element Selections (Moved inside onload) ---
+            addEntryButton = document.getElementById('addEntryButton');
+            moodEntryModal = document.getElementById('moodEntryModal');
+            moodEntryModalCloseButton = document.getElementById('moodEntryModalCloseButton');
+
+            // Elements within the mood entry modal
+            moodSelectorDiv = moodEntryModal.querySelector('.mood-selector');
+            subsetFeelingsContainer = moodEntryModal.querySelector('.subset-feelings-container');
+            subsetFeelingsDiv = moodEntryModal.querySelector('.subset-feelings');
+            notesInput = moodEntryModal.querySelector('.notes-input');
+            saveMoodButton = moodEntryModal.querySelector('.save-button');
+
+            // Elements for other pages
+            moodLogDiv = document.querySelector('.mood-log-container');
+            textStatsContentDiv = document.getElementById('textStatsContent');
+            moodChartCanvas = document.getElementById('moodChartCanvas');
+            chartMessageP = document.getElementById('chartMessage');
+
+            // Elements for custom message modal
+            customModal = document.getElementById('customModal');
+            modalTitle = document.getElementById('modalTitle');
+            modalMessage = document.getElementById('modalMessage');
+            modalCloseButton = document.getElementById('modalCloseButton');
+
+            // Navigation elements
+            navButtons = document.querySelectorAll('.nav-button');
+            trackerPage = document.getElementById('trackerPage');
+            logPage = document.getElementById('logPage');
+            statsPage = document.getElementById('statsPage');
+            pages = document.querySelectorAll('.page-content');
+
+
+            // --- Event Listeners (Moved inside onload) ---
+
+            // Event listener to close the message modal when the close button is clicked
+            modalCloseButton.addEventListener('click', () => {
+                customModal.style.display = 'none';
+            });
+
+            // Event listener to close the message modal when clicking outside of it
+            customModal.addEventListener('click', (event) => { // Changed from window to customModal for more specific handling
+                if (event.target === customModal) {
+                    customModal.style.display = 'none';
+                }
+            });
+
+            // Attach event listeners to navigation buttons
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => showPage(button.dataset.page));
+            });
+
+            // Event listeners for the new mood entry modal
+            addEntryButton.addEventListener('click', () => {
+                moodEntryModal.style.display = 'flex'; // Show the modal
+                renderMoodButtons(); // Ensure mood buttons are rendered when modal opens
+                resetForm(); // Reset form state when opening for a new entry
+            });
+
+            moodEntryModalCloseButton.addEventListener('click', () => {
+                moodEntryModal.style.display = 'none'; // Hide the modal
+                resetForm(); // Reset form state when closing
+            });
+
+            // Close mood entry modal when clicking outside of it
+            moodEntryModal.addEventListener('click', (event) => {
+                if (event.target === moodEntryModal) {
+                    moodEntryModal.style.display = 'none';
+                    resetForm(); // Reset form state when closing
+                }
+            });
+
+            // Event listener for the save mood button
+            saveMoodButton.addEventListener('click', saveMoodEntry);
+
+
+            // --- Initial App State ---
             updateSaveButtonState(); // Set initial state of the save button
             showPage('trackerPage'); // Display the tracker page by default
         };
