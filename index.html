@@ -19,8 +19,6 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 
 
-    <link rel="stylesheet" href="styles.css">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap"
         rel="stylesheet">
@@ -38,6 +36,16 @@
             margin: 0;
             padding: 1rem;
             box-sizing: border-box;
+
+            /* IMPORTANT: Add padding to account for iOS safe areas (notch, dynamic island) */
+            padding-top: constant(safe-area-inset-top); /* For iOS < 11.2 */
+            padding-top: env(safe-area-inset-top);     /* For iOS 11.2+ */
+            padding-left: constant(safe-area-inset-left);
+            padding-left: env(safe-area-inset-left);
+            padding-right: constant(safe-area-inset-right);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         /* Navigation buttons container */
@@ -45,6 +53,8 @@
             display: flex;
             justify-content: center;
             gap: 1rem;
+            /* Adjust margin-top to work with body padding, or remove if body padding is enough */
+            margin-top: 0.5rem; /* Reduced initial margin as body padding handles top space */
             margin-bottom: 1.5rem;
         }
 
@@ -551,6 +561,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -1160,7 +1171,7 @@
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replace(/'/g, "&#039;');
         }
 
         // Initial setup calls when the window loads
