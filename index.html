@@ -3,8 +3,32 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated viewport for better iOS display and PWA behavior -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Mood Ledger</title>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Theme color for browser UI - matches body background -->
+    <meta name="theme-color" content="#3A302A">
+
+    <!-- iOS Specific PWA Meta Tags -->
+    <!-- Allows the web app to be run in full-screen mode -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Sets the style of the status bar (e.g., default, black, black-translucent) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Sets the title of the app when added to the Home Screen -->
+    <meta name="apple-mobile-web-app-title" content="Mood Ledger">
+    <!-- Link to the icon for the Home Screen (e.g., a 180x180px PNG) -->
+    <!-- You should create this image and place it in the specified path -->
+    <link rel="apple-touch-icon" href="images/apple-touch-icon-180x180.png">
+    <!-- You can add more apple-touch-icon links for different sizes if needed -->
+    <!-- Example: <link rel="apple-touch-icon" sizes="152x152" href="images/apple-touch-icon-152x152.png"> -->
+    <!-- Example: <link rel="apple-touch-icon" sizes="167x167" href="images/apple-touch-icon-167x167.png"> -->
+    <!-- Example: <link rel="apple-touch-icon" sizes="192x192" href="images/apple-touch-icon-192x192.png"> -->
+
+    <!-- End PWA Meta Tags -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap"
         rel="stylesheet">
