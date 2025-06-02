@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Ledger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Base styles for the body */
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: #3A302A; /* Very dark, slightly warm brown - old wood/background */
+            color: #EAE0D5; /* Off-white/light parchment for text */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        /* Navigation buttons container */
+        .page-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Styling for individual navigation buttons */
+        .nav-button {
+            font-family: 'Cinzel', serif;
+            background-color: #6B4F40; /* Medium wood */
+            color: #EAE0D5;
+            padding: 0.6rem 1.2rem;
+            border: 2px solid #8B6F5C;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hover effect for navigation buttons */
+        .nav-button:hover {
+            background-color: #8B6F5C;
+            border-color: #D4AF37;
+        }
+
+        /* Active state for navigation buttons */
+        .nav-button.active {
+            background-color: #D4AF37;
+            color: #3A302A;
+            border-color: #B8860B;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* General page content styling */
+        .page-content {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* Display classes for pages */
+        .active-page {
+            display: block;
+        }
+
+        .inactive-page {
+            display: none;
+        }
+
+        /* Container for main content sections */
+        .container {
+            background-color: #503F32; /* Darker, rich wood/leather */
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid #7A5C49; /* Wood highlight/frame */
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        /* Heading 1 styling */
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37; /* Old gold/brass */
+            text-align: center;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Mood selection buttons container */
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+        }
+
+        /* Styling for individual mood buttons */
+        .mood-button {
+            background-color: #6B4F40;
+            border: 2px solid #8B6F5C;
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: calc(20% - 0.75rem);
+            min-width: 70px;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            color: #EAE0D5;
+        }
+
+        /* Hover effect for mood buttons */
+        .mood-button:hover {
+            background-color: #8B6F5C;
+            border-color: #D4AF37;
+        }
+
+        /* Selected state for mood buttons */
+        .mood-button.selected {
+            background-color: #D4AF37;
+            color: #3A302A;
+            border-color: #B8860B;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6), inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Icon color adjustment for selected mood buttons */
+        .mood-button.selected svg {
+            fill: #3A302A !important;
+        }
+
+        /* SVG icon styling within mood buttons */
+        .mood-button svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+            fill: #EAE0D5;
+        }
+
+        /* Icon transform for selected mood buttons */
+        .mood-button.selected svg {
+            transform: scale(1.1);
+        }
+
+        /* Text styling within mood buttons */
+        .mood-button span {
+            font-size: 0.75rem;
+            text-align: center;
+            font-family: 'Merriweather', serif;
+        }
+
+        /* Font weight for selected mood button text */
+        .mood-button.selected span {
+            font-weight: 700;
+        }
+
+        /* Container for subset feelings */
+        .subset-feelings-container {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #4A3B31;
+            border-radius: 6px;
+            border: 1px solid #6B4F40;
+        }
+
+        /* Heading for subset feelings */
+        .subset-feelings-container h3 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        /* Layout for subset feelings tags */
+        .subset-feelings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        /* Styling for individual feeling tags */
+        .feeling-tag {
+            background-color: #60493C;
+            color: #EAE0D5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #7A5C49;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hover effect for feeling tags */
+        .feeling-tag:hover {
+            background-color: #7A5C49;
+            border-color: #D4AF37;
+        }
+
+        /* Selected state for feeling tags */
+        .feeling-tag.selected {
+            background-color: #800020;
+            color: #EAE0D5;
+            border-color: #A04040;
+            font-weight: 700;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Styling for notes input textarea */
+        .notes-input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #60493C;
+            border: 1px solid #7A5C49;
+            border-radius: 6px;
+            color: #EAE0D5;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Merriweather', serif;
+            box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Placeholder text color for notes input */
+        .notes-input::placeholder {
+            color: #A09487;
+        }
+
+        /* Styling for the save button */
+        .save-button {
+            background-color: #800020;
+            color: #EAE0D5;
+            padding: 0.85rem 1.5rem;
+            border: 2px solid #A04040;
+            border-radius: 6px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hover effect for save button */
+        .save-button:hover {
+            background-color: #A04040;
+            border-color: #D4AF37;
+            color: #FFF;
+        }
+
+        /* Disabled state for save button */
+        .save-button:disabled {
+            background-color: #6B4F40;
+            border-color: #8B6F5C;
+            color: #A09487;
+            cursor: not-allowed;
+            box-shadow: none;
+            text-shadow: none;
+        }
+
+        /* Mood log container */
+        .mood-log-container {
+            width: 100%;
+        }
+
+        /* Heading for mood log */
+        .mood-log-container h2 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Styling for individual mood log entries */
+        .mood-log-entry {
+            background-color: #4A3B31;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #D4AF37;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Paragraph styling within log entries */
+        .mood-log-entry p {
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Main mood display in log entries */
+        .mood-log-entry .log-mood {
+            font-weight: 700;
+            color: #D4AF37;
+            display: flex;
+            align-items: center;
+            font-family: 'Merriweather', serif;
+        }
+
+        /* SVG icon styling within log entries */
+        .mood-log-entry .log-mood svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+            fill: #D4AF37;
+        }
+
+        /* Subset feelings display in log entries */
+        .mood-log-entry .log-subset {
+            color: #C8BBAE;
+            font-style: italic;
+        }
+
+        /* Notes display in log entries */
+        .mood-log-entry .log-notes {
+            color: #B8A99A;
+            white-space: pre-wrap;
+        }
+
+        /* Timestamp display in log entries */
+        .mood-log-entry .log-time {
+            font-size: 0.75rem;
+            color: #908070;
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        /* Message for no entries */
+        .no-entries {
+            text-align: center;
+            color: #A09487;
+            padding: 1rem;
+            font-style: italic;
+        }
+
+        /* User ID display (not used with local storage, but kept for structure) */
+        #userIdDisplay {
+            font-size: 0.7rem;
+            color: #7A5C49;
+            text-align: center;
+            margin-top: 2rem;
+            width: 100%;
+            word-break: break-all;
+        }
+
+        /* Custom modal styling */
+        #customModal>div {
+            background-color: #503F32;
+            border: 2px solid #7A5C49;
+            color: #EAE0D5;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Modal title styling */
+        #modalTitle {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Modal close button styling */
+        #modalCloseButton {
+            background-color: #800020;
+            color: #EAE0D5;
+            border: 1px solid #A04040;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+        }
+
+        /* Hover effect for modal close button */
+        #modalCloseButton:hover {
+            background-color: #A04040;
+            border-color: #D4AF37;
+        }
+
+        /* Stats page specific styles */
+        #statsPage h2 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            text-align: center;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Section styling within stats page */
+        .stats-section {
+            background-color: #503F32;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #7A5C49;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Heading 3 within stats sections */
+        .stats-section h3 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #7A5C49;
+        }
+
+        /* Paragraph and list item styling within stats sections */
+        .stats-section p,
+        .stats-section li {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: #EAE0D5;
+        }
+
+        /* List styling within stats sections */
+        .stats-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        /* List item layout within stats sections */
+        .stats-section li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px dashed #6B4F40;
+        }
+
+        /* Remove bottom border for last list item */
+        .stats-section li:last-child {
+            border-bottom: none;
+        }
+
+        /* Value display within stats sections */
+        .stats-section .stat-value {
+            font-weight: 600;
+            color: #D4AF37;
+        }
+
+        /* Loading and no data messages for stats */
+        .stats-loading,
+        .stats-no-data {
+            text-align: center;
+            font-style: italic;
+            color: #A09487;
+            padding: 2rem;
+        }
+
+        /* Mood chart canvas styling */
+        #moodChartCanvas {
+            background-color: #4A3B31;
+            border-radius: 6px;
+            padding: 1rem;
+            border: 1px solid #6B4F40;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .mood-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .mood-button {
+                width: calc(33.33% - 0.75rem);
+                min-width: 50px;
+            }
+
+            .subset-feelings {
+                justify-content: flex-start;
+            }
+
+            .feeling-tag {
+                margin-bottom: 0.5rem;
+            }
+
+            #moodChartCanvas {
+                margin-top: 1rem;
+            }
+
+            .container,
+            .stats-section {
+                padding: 1rem 1.5rem;
+            }
+
+            h1,
+            #statsPage h2 {
+                font-size: 1.75rem;
+            }
+
+            .mood-log-container h2 {
+                font-size: 1.3rem;
+            }
+
+            .nav-button {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Further responsive adjustments for very small screens */
+        @media (max-width: 400px) {
+            .mood-button {
+                width: calc(50% - 0.75rem);
+            }
+
+            h1,
+            #statsPage h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-navigation">
+        <button class="nav-button active" data-page="trackerPage">Chronicle Spirit</button>
+        <button class="nav-button" data-page="logPage">Ledger of Days</button>
+        <button class="nav-button" data-page="statsPage">Wisdom of Self</button>
+    </div>
+
+    <div id="trackerPage" class="page-content active-page">
+        <h1>Record Thy Humour</h1>
+        <div class="container">
+            <div class="mood-selector"></div>
+
+            <div class="subset-feelings-container">
+                <h3>Attune Thy Temper:</h3>
+                <div class="subset-feelings"></div>
+            </div>
+
+            <textarea class="notes-input" placeholder="Pen thy thoughts, if ye wish... (Optional)"></textarea>
+            <button class="save-button" disabled>Choose a Spirit to Chronicle</button>
+        </div>
+    </div>
+
+    <div id="logPage" class="page-content inactive-page">
+        <h2>The Chronicle of Humours</h2>
+        <div class="container mood-log-container">
+            <p class="no-entries">The scroll awaits thy first entry...</p>
+        </div>
+    </div>
+
+    <div id="statsPage" class="page-content inactive-page">
+        <h2>Chronicle Compendium</h2>
+        <div id="statsContentContainer">
+            <div class="stats-section">
+                <h3>Chart of Humours Over Time</h3>
+                <canvas id="moodChartCanvas"></canvas>
+                <p id="chartMessage" class="stats-no-data" style="display:none;"></p>
+            </div>
+            <div id="textStatsContent" class="stats-loading">Loading statistical marvels...</div>
+        </div>
+    </div>
+
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4"
+        style="display: none;">
+        <div class="p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 id="modalTitle" class="text-lg font-semibold mb-3">A Missive!</h3>
+            <p id="modalMessage" class="mb-4">Message here.</p>
+            <button id="modalCloseButton" class="w-full font-medium py-2 px-4 rounded-md transition duration-150">
+                Very Well
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Mood Data ---
+        // Defines the main mood categories with their names, numerical values, and SVG icons.
+        const moods = [
+            {
+                name: "Dire Straits",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path d="M16.406 17.53v14.595l140.75 132.563L105.75 17.53zm123.22 0l68.343 124.407l-2.907-124.406h-65.438zm100.468 0l22.78 118.564L298.5 17.53zm93.437 0L317.19 147.75l90.53-130.22h-74.187zm106.283 0l-74.157 158.282L495.876 76.5V17.53h-56.063zM16.406 71.25v84.094l99.28 46.72zm479.47 46.156l-93.438 99.28l93.437-32.717v-66.564zm-312.188 59.47c-10.92.086-25.162 10.363-36.125 27.374c-6.48 10.054-10.708 20.766-12.5 30.406c-49.04 22.678-113.907 63.906-113.907 63.906l148.438 126l15 67.782h144.28l11.313-64.656l.094.093l152.25-129.217s-66.033-41.99-115.217-64.532c-1.858-9.475-6.037-19.945-12.375-29.78c-10.964-17.01-25.237-27.288-36.157-27.375c-3.64-.03-6.906 1.073-9.56 3.438c-2.42 2.154-4.117 5.17-5.126 8.812c1.253 1.576 2.484 3.176 3.656 4.844c11.65 16.57 19.578 37.626 22.47 61c8.607 7.78 17.563 11.763 24.717 10.78l54.594 35.938L314.94 359.5c-4.07 5.263-8.572 10.022-13.438 14.156c-5.576-4.344-11.033-7.95-16.438-10.812c6.327-4.49 12.208-10.48 17.407-17.875c12.3-17.496 20.28-42.414 20.28-70.126s-7.98-52.63-20.28-70.125c-12.3-17.496-28.3-27.314-45.44-27.314c-17.138 0-33.136 9.818-45.436 27.313c-12.3 17.493-20.28 42.412-20.28 70.124s7.98 52.63 20.28 70.125c4.54 6.456 9.58 11.866 15 16.124c-5.51 2.618-11.07 6.023-16.688 10.22a96 96 0 0 1-10.5-11.44l-105.25-58.187l54.438-35.843c7.49.513 16.76-4.09 25.5-12.594c3.06-22.683 10.856-43.12 22.22-59.28a98 98 0 0 1 2.436-3.314c-.934-4.326-2.752-7.896-5.5-10.344c-2.655-2.364-5.923-3.466-9.563-3.437zm61.093 58.468a73.4 73.4 0 0 0-1.03 12.312c0 2.244.067 4.41.25 6.53c-11.27.942-22.108 3.384-32.063 7.345l-6.906-17.342c12.538-4.99 25.953-7.912 39.75-8.844zm28.22.78c11.567 1.376 23.15 4.035 34.47 7.907l-6.033 17.657a148.5 148.5 0 0 0-27.906-6.625a75 75 0 0 0 .345-7.406c0-4.045-.303-7.93-.875-11.53zm-16.5 41.314c20.266 0 36.72 16.404 36.72 36.656c0 20.255-16.454 36.687-36.72 36.687s-36.688-16.434-36.688-36.686s16.422-36.656 36.688-36.656z"/></svg>`,
+                value: 1,
+                subsets: ["Despondent", "Forlorn", "Grief-stricken", "Afflicted", "Overwrought", "Barren", "Woeful", "Shamed", "Forsaken", "Wretched"]
+            },
+            {
+                name: "Somewhat Low",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256"><path d="M217 34.8a15.94 15.94 0 0 0-14.82-1.71c-14.03 5.46-42.36 14.62-74.18 14.62s-60.16-9.16-74.21-14.62A16 16 0 0 0 32 48v55.77c0 35.84 9.65 69.65 27.18 95.18c18.16 26.46 42.6 41 68.82 41s50.66-14.57 68.82-41c17.53-25.51 27.18-59.32 27.18-95.16V48a16 16 0 0 0-7-13.2M66 125.33a8 8 0 0 1 12-10.67c2.68 3 8.85 5.34 14 5.34s11.36-2.35 14-5.34a8 8 0 0 1 12 10.67c-5.75 6.38-16.18 10.67-26 10.67s-20.25-4.29-26-10.67m92.62 63.1A8 8 0 0 1 152 192a7.9 7.9 0 0 1-4.42-1.34C141.07 186.34 136 184 128 184s-13.07 2.34-19.57 6.66a8 8 0 0 1-8.86-13.32C108 171.73 116.06 168 128 168s20 3.73 28.43 9.34a8 8 0 0 1 2.23 11.09Zm31.3-63.1c-5.71 6.38-16.14 10.67-26 10.67s-20.25-4.29-26-10.67A8 8 0 0 1 150 114.66c2.68 3 8.85 5.34 14 5.34s11.36-2.35 14-5.34a8 8 0 0 1 12 10.67Z"/></svg>`,
+                value: 2,
+                subsets: ["Melancholy", "Crestfallen", "Troubled", "Harried", "Weary", "Listless", "Peevish", "Vexed", "Lethargic"]
+            },
+            {
+                name: "Passable",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M15.5 11q.625 0 1.063-.437T17 9.5t-.437-1.062T15.5 8t-1.062.438T14 9.5t.438 1.063T15.5 11m-7 0q.625 0 1.063-.437T10 9.5t-.437-1.062T8.5 8t-1.062.438T7 9.5t.438 1.063T8.5 11m.5 4.5h6V14H9zm3 6.5q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>`,
+                value: 3,
+                subsets: ["Tolerable", "Agnostic", "Middling", "Pondering", "Uncertain", "Placid", "Even-keeled", "Commonplace"]
+            },
+            {
+                name: "Contented",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256"><path d="M217 34.8a15.94 15.94 0 0 0-14.82-1.71c-14.03 5.46-42.36 14.62-74.18 14.62s-60.16-9.16-74.21-14.62A16 16 0 0 0 32 48v55.77c0 35.84 9.65 69.65 27.18 95.18c18.16 26.46 42.6 41 68.82 41s50.66-14.57 68.82-41c17.53-25.51 27.18-59.32 27.18-95.16V48a16 16 0 0 0-7-13.2M78 133.33a8 8 0 1 1-12-10.67C71.75 116.28 82.18 112 92 112s20.25 4.28 26 10.66a8 8 0 1 1-12 10.67c-2.68-3-8.85-5.33-14-5.33s-11.36 2.34-14 5.33m90.49 47.86a52.9 52.9 0 0 1-80.9 0a8 8 0 1 1 12.13-10.39a36.89 36.89 0 0 0 56.56 0a8 8 0 0 1 12.17 10.39ZM189.34 134a8 8 0 0 1-11.3-.63c-2.68-3-8.85-5.33-14-5.33s-11.36 2.34-14 5.33A8 8 0 1 1 138 122.66c5.71-6.38 16.14-10.66 26-10.66s20.25 4.28 26 10.66a8 8 0 0 1-.66 11.34"/></svg>`,
+                value: 4,
+                subsets: ["Gladdened", "Tranquil", "Serene", "Gratified", "Untroubled", "Snug", "Sanguine", "At Peace"]
+            },
+            {
+                name: "Jubilant",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><path d="m258.924 26.24l-27.717 43.752l27.717 93.643L286.64 69.99zm-134.69 36.1l-2.13 51.748l70.828 67.24l-22.82-94.955zm267.284 0l-45.883 24.033l-22.817 94.955l70.827-67.24zM75.234 166.02l-51.75 2.126l24.032 45.88l94.957 22.82l-67.24-70.826zm365.282 0l-67.24 70.826l94.958-22.82l24.032-45.88zM257.68 184.906c-44.552 0-73.683 19.55-93.12 48.89c-18.467 27.874-27.254 65.027-28.097 101.13c26.087 13.015 41.985 26.69 49.12 41.693c6.084 12.788 4.095 26.367-2.94 37.03c5.2 4.41 11.51 8.304 18.59 11.582l8.21-18.51l17.086 7.573l-7.7 17.363c8.863 2.48 18.362 4.098 28.06 4.756v-21.13h18.686v21.18c9.763-.62 19.366-2.233 28.4-4.84l-7.18-18.013l17.358-6.92l7.287 18.277c6.542-3.192 12.524-7.025 17.728-11.488c-3.267-4.238-5.804-8.768-7.098-13.78c-2.07-8.03-.64-16.824 3.782-24.55c8.258-14.428 25.677-26.786 53.043-40.146c-.854-34.222-9.458-71.365-27.842-99.715c-19.39-29.902-48.53-50.384-93.373-50.384zm-83.043 94.502h.002c37.05 3.798 58.884 24.694 63.356 49.32c-27.388-17.367-49.047-14.653-65.633 2.395c-18.615-15.848-12.507-33.47 2.274-51.715zm169.384 0h.003c14.78 18.244 20.888 35.867 2.272 51.715c-16.586-17.048-38.245-19.762-65.633-2.396c4.472-24.625 26.308-45.52 63.36-49.32zm-89.07 59.703c9.183 16.556 16.467 33.107 20.083 49.66c-9.877 7.357-27.558 8.426-40.166 0c4.887-16.553 10.766-33.104 20.084-49.66zm-77.315 94.42l-17.99 29.09c42.795 39.326 137.24 44.524 191.84-.485l-17.56-28.535c-4.854 3.413-10.036 6.395-15.466 8.968l6.208 15.577l-17.36 6.92l-6.312-15.83c-11.373 3.404-23.373 5.337-35.42 5.972v20.828H246.89v-20.88c-12.305-.692-24.432-2.694-35.802-6.038l-7.217 16.276l-17.085-7.575l6.754-15.23c-5.655-2.614-10.99-5.628-15.905-9.06z"/></svg>`,
+                value: 5,
+                subsets: ["Exultant", "Animated", "Vigorous", "Thankful", "Buoyant", "Triumphant", "Mirthful", "Artistic", "Fruitful", "Ecstatic", "Driven", "Inspired"]
+            }
+        ];
+
+        // Defines subsets of feelings for each main mood.
+        const subsetFeelingsData = {
+            'Dire Straits': ["Despondent", "Forlorn", "Grief-stricken", "Afflicted", "Overwrought", "Barren", "Woeful", "Shamed", "Forsaken", "Wretched"],
+            'Somewhat Low': ["Melancholy", "Crestfallen", "Troubled", "Harried", "Weary", "Listless", "Peevish", "Vexed", "Lethargic"],
+            'Passable': ["Tolerable", "Agnostic", "Middling", "Pondering", "Uncertain", "Placid", "Even-keeled", "Commonplace"],
+            'Contented': ["Gladdened", "Tranquil", "Serene", "Gratified", "Untroubled", "Snug", "Sanguine", "At Peace"],
+            'Jubilant': ["Exultant", "Animated", "Vigorous", "Thankful", "Buoyant", "Triumphant", "Mirthful", "Artistic", "Fruitful", "Ecstatic", "Driven", "Inspired"]
+        };
+
+        // Helper to get mood object by value (used in chart tooltip)
+        const getMoodByValue = (value) => moods.find(m => m.value === value);
+
+
+        // --- DOM Elements ---
+        const moodSelectorDiv = document.querySelector('.mood-selector');
+        const subsetFeelingsContainer = document.querySelector('.subset-feelings-container');
+        const subsetFeelingsDiv = document.querySelector('.subset-feelings');
+        const notesInput = document.querySelector('.notes-input');
+        const saveMoodButton = document.querySelector('.save-button');
+        const moodLogDiv = document.querySelector('.mood-log-container');
+        const textStatsContentDiv = document.getElementById('textStatsContent');
+        const moodChartCanvas = document.getElementById('moodChartCanvas');
+        const chartMessageP = document.getElementById('chartMessage');
+
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+
+        const navButtons = document.querySelectorAll('.nav-button');
+        const trackerPage = document.getElementById('trackerPage');
+        const logPage = document.getElementById('logPage');
+        const statsPage = document.getElementById('statsPage');
+        const pages = document.querySelectorAll('.page-content');
+
+
+        // --- State Variables ---
+        let selectedMainMood = null;
+        let selectedSubsetFeelings = [];
+        let moodChart = null; // To store the Chart.js instance
+
+
+        // --- Functions ---
+
+        /**
+         * Displays a custom modal with a given title and message.
+         * @param {string} title - The title for the modal.
+         * @param {string} message - The message content for the modal.
+         */
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.style.display = 'flex'; // Use flex to center the modal
+        }
+
+        // Event listener to close the modal when the close button is clicked
+        modalCloseButton.addEventListener('click', () => {
+            customModal.style.display = 'none';
+        });
+
+        // Event listener to close the modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === customModal) {
+                customModal.style.display = 'none';
+            }
+        });
+
+        /**
+         * Handles navigation between different pages of the application.
+         * Hides all pages and then shows the selected page, updating navigation button active states.
+         * @param {string} pageId - The ID of the page to show (e.g., 'trackerPage', 'logPage', 'statsPage').
+         */
+        function showPage(pageId) {
+            // Hide all pages and remove active class from all nav buttons
+            pages.forEach(page => page.classList.remove('active-page'));
+            pages.forEach(page => page.classList.add('inactive-page')); // Ensure all are hidden
+            navButtons.forEach(button => button.classList.remove('active'));
+
+            // Show the selected page and set its nav button to active
+            const selectedPage = document.getElementById(pageId);
+            const selectedButton = document.querySelector(`.nav-button[data-page="${pageId}"]`);
+
+            if (selectedPage && selectedButton) {
+                selectedPage.classList.add('active-page');
+                selectedPage.classList.remove('inactive-page'); // Make it visible
+                selectedButton.classList.add('active');
+
+                // Perform specific actions based on the page
+                if (pageId === 'logPage') {
+                    loadMoodLog();
+                } else if (pageId === 'statsPage') {
+                    calculateAndDisplayStats();
+                }
+            }
+        }
+
+        // Attach event listeners to navigation buttons
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => showPage(button.dataset.page));
+        });
+
+        /**
+         * Renders the main mood selection buttons based on the 'moods' array.
+         * Each button displays the mood's icon and name.
+         */
+        function renderMoodButtons() {
+            moodSelectorDiv.innerHTML = ''; // Clear existing buttons
+            moods.forEach(mood => {
+                const button = document.createElement('button');
+                button.classList.add('mood-button');
+                button.dataset.moodName = mood.name; // Store mood name for selection
+                // Directly inject the SVG icon and mood name
+                button.innerHTML = `
+                    ${mood.icon}
+                    <span>${mood.name}</span>
+                `;
+                button.addEventListener('click', () => selectMainMood(mood));
+                moodSelectorDiv.appendChild(button);
+            });
+        }
+
+        /**
+         * Handles the selection of a main mood.
+         * Updates the selected mood, resets subset feelings, and renders new subset feelings.
+         * @param {object} mood - The selected mood object from the 'moods' array.
+         */
+        function selectMainMood(mood) {
+            selectedMainMood = mood;
+            selectedSubsetFeelings = []; // Clear previous subset selections
+
+            // Update active state for mood buttons
+            document.querySelectorAll('.mood-button').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.moodName === mood.name);
+            });
+
+            // Render subset feelings for the newly selected mood
+            renderSubsetFeelings(mood.name);
+            subsetFeelingsContainer.style.display = 'block'; // Show subset feelings container
+            updateSaveButtonState(); // Update save button enabled/disabled state
+        }
+
+        /**
+         * Renders the subset feeling tags for the given main mood.
+         * @param {string} moodName - The name of the main mood whose subset feelings are to be rendered.
+         */
+        function renderSubsetFeelings(moodName) {
+            subsetFeelingsDiv.innerHTML = ''; // Clear existing tags
+            const subsets = subsetFeelingsData[moodName]; // Get subsets for the selected mood
+
+            if (!subsets || subsets.length === 0) {
+                subsetFeelingsDiv.innerHTML = '<p class="text-sm text-gray-400">No specific tempers for this spirit.</p>';
+                return;
+            }
+
+            subsets.forEach(feeling => {
+                const tag = document.createElement('div');
+                tag.classList.add('feeling-tag');
+                tag.textContent = feeling;
+                tag.dataset.feelingName = feeling; // Store feeling name for toggling
+                tag.addEventListener('click', () => toggleSubsetFeeling(tag, feeling));
+                subsetFeelingsDiv.appendChild(tag);
+            });
+        }
+
+        /**
+         * Toggles the selection of a subset feeling.
+         * Adds or removes the feeling from 'selectedSubsetFeelings' and updates its visual state.
+         * @param {HTMLElement} tagElement - The DOM element of the feeling tag.
+         * @param {string} feelingName - The name of the subset feeling.
+         */
+        function toggleSubsetFeeling(tagElement, feelingName) {
+            tagElement.classList.toggle('selected'); // Toggle visual selected class
+            if (selectedSubsetFeelings.includes(feelingName)) {
+                selectedSubsetFeelings = selectedSubsetFeelings.filter(f => f !== feelingName);
+            } else {
+                selectedSubsetFeelings.push(feelingName);
+            }
+            updateSaveButtonState(); // Update save button enabled/disabled state
+        }
+
+        /**
+         * Updates the disabled state and text of the save mood button
+         * based on whether a main mood has been selected.
+         */
+        function updateSaveButtonState() {
+            if (selectedMainMood) {
+                saveMoodButton.disabled = false;
+                saveMoodButton.textContent = 'Commit to Chronicle';
+            } else {
+                saveMoodButton.disabled = true;
+                saveMoodButton.textContent = 'Choose a Spirit to Chronicle';
+            }
+        }
+
+        /**
+         * Resets the mood selection form to its initial state.
+         */
+        function resetForm() {
+            selectedMainMood = null;
+            selectedSubsetFeelings = [];
+            notesInput.value = ''; // Clear notes
+            document.querySelectorAll('.mood-button.selected').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.feeling-tag.selected').forEach(tag => tag.classList.remove('selected'));
+            subsetFeelingsContainer.style.display = 'none'; // Hide subset feelings
+            subsetFeelingsDiv.innerHTML = ''; // Clear subset feelings
+            updateSaveButtonState(); // Update save button state
+        }
+
+        /**
+         * Saves the current mood entry to local storage.
+         * Displays a modal indicating success or failure.
+         */
+        saveMoodButton.addEventListener('click', async () => {
+            if (!selectedMainMood) {
+                showModal("Hark!", "Pray, choose a spirit ere saving.");
+                return;
+            }
+
+            const moodEntry = {
+                mainMood: selectedMainMood.name,
+                mainMoodValue: selectedMainMood.value,
+                mainMoodIcon: selectedMainMood.icon,
+                subsetFeelings: selectedSubsetFeelings,
+                notes: notesInput.value.trim(),
+                timestamp: new Date().toISOString() // Use ISO string for consistent date storage
+            };
+
+            try {
+                // Retrieve existing log, add new entry, and save back to local storage
+                let existingLog = JSON.parse(localStorage.getItem('moodLog')) || [];
+                existingLog.push(moodEntry);
+                localStorage.setItem('moodLog', JSON.stringify(existingLog));
+
+                showModal("Well Done!", "Thy spirit hath been chronicled!");
+                resetForm(); // Reset the form after saving
+
+                // Refresh log and stats if those pages are currently active
+                if (logPage.classList.contains('active-page')) {
+                    loadMoodLog();
+                }
+                if (statsPage.classList.contains('active-page')) {
+                    calculateAndDisplayStats();
+                }
+
+            } catch (error) {
+                showModal("Alas!", `Failed to chronicle thy spirit: ${error.message}`);
+                console.error("Error saving mood entry:", error);
+            }
+        });
+
+        /**
+         * Loads and displays the mood log from local storage.
+         * Sorts entries by timestamp in descending order.
+         */
+        function loadMoodLog() {
+            moodLogDiv.innerHTML = ''; // Clear existing log display
+            let moodLog = JSON.parse(localStorage.getItem('moodLog')) || []; // Get log from local storage
+
+            if (moodLog.length === 0) {
+                moodLogDiv.innerHTML = '<p class="no-entries">The scroll awaits thy first entry...</p>';
+                return;
+            }
+
+            // Sort entries by timestamp (most recent first)
+            moodLog.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            // Render each mood entry
+            moodLog.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('mood-log-entry');
+
+                // Format timestamp for display
+                const date = entry.timestamp ? new Date(entry.timestamp).toLocaleString('en-GB', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 'Date Unrecorded';
+
+                entryDiv.innerHTML = `
+                    <p class="log-mood">${entry.mainMoodIcon || ''} ${entry.mainMood}</p>
+                    ${entry.subsetFeelings && entry.subsetFeelings.length > 0 ? `<p class="log-subset">Felt: ${entry.subsetFeelings.join(', ')}</p>` : ''}
+                    ${entry.notes ? `<p class="log-notes">Musings: ${escapeHtml(entry.notes)}</p>` : ''}
+                    <p class="log-time">Chronicled: ${date}</p>
+                `;
+                moodLogDiv.appendChild(entryDiv);
+            });
+        }
+
+        /**
+         * Calculates and displays statistics based on mood entries in local storage.
+         * Includes text-based stats and a Chart.js line graph.
+         */
+        async function calculateAndDisplayStats() {
+            textStatsContentDiv.innerHTML = '<p class="stats-loading">Gathering insights from the ancient scrolls...</p>';
+            moodChartCanvas.style.display = 'none'; // Hide canvas initially
+            chartMessageP.style.display = 'none'; // Hide message initially
+
+            try {
+                let allEntries = JSON.parse(localStorage.getItem('moodLog')) || []; // Get all entries
+
+                if (allEntries.length === 0) {
+                    textStatsContentDiv.innerHTML = '<p class="stats-no-data">The chronicle is yet bare. No statistics to show.</p>';
+                    chartMessageP.textContent = 'No entries yet to draw a grand chart of humours.';
+                    chartMessageP.style.display = 'block';
+                    if (moodChart) {
+                        moodChart.destroy();
+                        moodChart = null;
+                    }
+                    return;
+                }
+
+                const totalEntries = allEntries.length;
+
+                // --- Text Stats Calculation ---
+                const moodCounts = {};
+                moods.forEach(mood => moodCounts[mood.name] = 0); // Initialize counts for all moods
+                allEntries.forEach(entry => {
+                    if (moodCounts.hasOwnProperty(entry.mainMood)) {
+                        moodCounts[entry.mainMood]++;
+                    }
+                });
+
+                const subsetFeelingCounts = {};
+                allEntries.forEach(entry => {
+                    if (entry.subsetFeelings && Array.isArray(entry.subsetFeelings)) {
+                        entry.subsetFeelings.forEach(feeling => {
+                            subsetFeelingCounts[feeling] = (subsetFeelingCounts[feeling] || 0) + 1;
+                        });
+                    }
+                });
+                // Sort subset feelings by count and get top 10
+                const sortedSubsetFeelings = Object.entries(subsetFeelingCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 10);
+
+                // Generate HTML for text-based statistics
+                let textStatsHTML = `
+                    <div class="stats-section">
+                        <h3>Overview</h3>
+                        <p>Total Entries Chronicled: <span class="stat-value">${totalEntries}</span></p>
+                    </div>
+                    <div class="stats-section">
+                        <h3>Distribution of Humours (Main Moods)</h3>
+                        <ul>`;
+                for (const moodName in moodCounts) {
+                    const count = moodCounts[moodName];
+                    const percentage = totalEntries > 0 ? ((count / totalEntries) * 100).toFixed(1) : 0;
+                    textStatsHTML += `<li><span>${moodName}:</span> <span class="stat-value">${count} (${percentage}%)</span></li>`;
+                }
+                textStatsHTML += `</ul></div>`;
+
+                if (sortedSubsetFeelings.length > 0) {
+                    textStatsHTML += `
+                        <div class="stats-section">
+                            <h3>Most Common Tempers (Subset Feelings - Top 10)</h3>
+                            <ul>`;
+                    sortedSubsetFeelings.forEach(([feeling, count]) => {
+                        textStatsHTML += `<li><span>${feeling}:</span> <span class="stat-value">${count} times</span></li>`;
+                    });
+                    textStatsHTML += `</ul></div>`;
+                } else {
+                    textStatsHTML += `
+                        <div class="stats-section">
+                            <h3>Most Common Tempers (Subset Feelings)</h3>
+                            <p>No subset tempers recorded yet.</p>
+                        </div>`;
+                }
+                textStatsContentDiv.innerHTML = textStatsHTML;
+
+                // --- Chart Logic ---
+                if (totalEntries < 2) {
+                    chartMessageP.textContent = 'Not enough entries to draw a grand chart of humours.';
+                    chartMessageP.style.display = 'block';
+                    moodChartCanvas.style.display = 'none';
+                    if (moodChart) {
+                        moodChart.destroy();
+                        moodChart = null;
+                    }
+                } else {
+                    moodChartCanvas.style.display = 'block';
+                    chartMessageP.style.display = 'none';
+
+                    // Sort entries by timestamp for accurate chart representation
+                    allEntries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                    // Prepare data for Chart.js
+                    const chartLabels = allEntries.map(entry => entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-GB', {
+                        month: 'short',
+                        day: 'numeric'
+                    }) : 'Unknown');
+                    const chartDataPoints = allEntries.map(entry => entry.mainMoodValue);
+
+                    const data = {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Mood Level Over Time',
+                            backgroundColor: 'rgba(212, 175, 55, 0.2)', // Old Gold with transparency
+                            borderColor: '#D4AF37', // Old Gold
+                            borderWidth: 2,
+                            pointBackgroundColor: '#800020', // Burgundy for points
+                            pointBorderColor: '#D4AF37',
+                            pointHoverBackgroundColor: '#EAE0D5',
+                            pointHoverBorderColor: '#800020',
+                            data: chartDataPoints,
+                            tension: 0.1 // Slight curve to lines
+                        }]
+                    };
+
+                    const config = {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 0.5, // Start slightly below lowest mood value
+                                    max: 5.5, // End slightly above highest mood value
+                                    ticks: {
+                                        color: '#A09487', // Muted parchment for tick labels
+                                        font: { family: "'Merriweather', serif" },
+                                        stepSize: 1,
+                                        callback: function (value, index, values) {
+                                            const mood = getMoodByValue(value); // Get mood name from value
+                                            return mood ? mood.name : '';
+                                        }
+                                    },
+                                    grid: {
+                                        color: '#6B4F40' // Dashed wood color for grid lines
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#A09487',
+                                        font: { family: "'Merriweather', serif" }
+                                    },
+                                    grid: {
+                                        color: '#6B4F40'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false // Hide legend as it's a single dataset
+                                },
+                                tooltip: {
+                                    enabled: true,
+                                    backgroundColor: '#503F32', // Dark wood tooltip
+                                    titleColor: '#D4AF37', // Gold title
+                                    titleFont: { family: "'Cinzel', serif", weight: 'bold' },
+                                    bodyColor: '#EAE0D5', // Parchment body
+                                    bodyFont: { family: "'Merriweather', serif" },
+                                    borderColor: '#7A5C49',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    displayColors: false, // Hide the little color box in tooltip
+                                    callbacks: {
+                                        title: function (tooltipItems) {
+                                            // Display the mood name as title
+                                            const dataIndex = tooltipItems[0].dataIndex;
+                                            const entry = allEntries[dataIndex];
+                                            return entry.mainMood;
+                                        },
+                                        label: function (tooltipItem) {
+                                            // This will be the body, return an array of strings
+                                            const dataIndex = tooltipItem.dataIndex;
+                                            const entry = allEntries[dataIndex];
+                                            let lines = [];
+                                            lines.push(`Date: ${new Date(entry.timestamp).toLocaleString('en-GB')}`);
+                                            if (entry.subsetFeelings && entry.subsetFeelings.length > 0) {
+                                                lines.push(`Felt: ${entry.subsetFeelings.join(', ')}`);
+                                            }
+                                            if (entry.notes) {
+                                                lines.push(`Musings: ${entry.notes}`);
+                                            }
+                                            return lines;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    // Destroy previous chart instance if it exists before creating a new one
+                    if (moodChart) {
+                        moodChart.destroy();
+                    }
+                    moodChart = new Chart(moodChartCanvas, config);
+                }
+
+            } catch (error) {
+                console.error("Error calculating stats:", error);
+                textStatsContentDiv.innerHTML = `<p class="stats-no-data text-red-400">A misadventure in calculations! ${error.message}</p>`;
+                moodChartCanvas.style.display = 'none';
+                chartMessageP.textContent = 'Error loading chart data.';
+                chartMessageP.style.display = 'block';
+                if (moodChart) {
+                    moodChart.destroy();
+                    moodChart = null;
+                }
+            }
+        }
+
+        /**
+         * Escapes HTML special characters in a string to prevent XSS.
+         * @param {string} unsafe - The string to escape.
+         * @returns {string} The escaped string.
+         */
+        function escapeHtml(unsafe) {
+            if (unsafe === null || typeof unsafe === 'undefined') return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initial setup calls when the window loads
+        window.onload = function () {
+            renderMoodButtons(); // Render the main mood selection buttons
+            updateSaveButtonState(); // Set initial state of the save button
+            showPage('trackerPage'); // Display the tracker page by default
+        };
+    </script>
+</body>
+
+</html>
